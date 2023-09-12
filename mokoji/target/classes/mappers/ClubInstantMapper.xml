@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClubInstantDAO">
+	<select id="getInstantList" parameterType="hashmap" resultType="hashmap">
+		SELECT a.cinst_code, a.cinst_loc ,a.cinst_name, a.cinst_date, a.cinst_content, a.cinst_memtot, a.cinst_cost, a.club_code, a.mem_code FROM CLUBINSTANT a, CLUB b
+		WHERE a.club_code = b.club_code AND a.club_code = ${ club.club_code }
+	</select>
+	
+	<select id="thisClubInstantList" parameterType="club" resultType="hashmap">
+	SELECT m.MEM_NAME , c.CINST_LOC,c.CINST_NAME ,c.CINST_CODE, TO_CHAR(c.CINST_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') AS CINST_DATE, c.CINST_CONTENT, c.CINST_MEMTOT, c.CINST_COST 
+	from CLUBINSTANT c, MEMBER m WHERE c.MEM_CODE = m.MEM_CODE AND  c.CLUB_CODE = #{club_code}
+	</select>
+	
+	<insert id="insertClubInstant" parameterType="hashmap">
+	         INSERT INTO CLUBINSTANT 
+	         (CINST_CODE, CINST_NAME, CINST_DATE, CINST_CONTENT, CINST_MEMTOT, CINST_COST, CLUB_CODE, MEM_CODE, CINST_LOC) 
+	         VALUES (${clubinstant.cinst_code}, '${clubinstant.cinst_name}', to_date('${clubinstant.cinst_date}', 'YYYY-MM-DD HH24:MI:SS'), '${clubinstant.cinst_content}', ${clubinstant.cinst_memtot}, ${clubinstant.cinst_cost}, ${club.club_code}, ${member.mem_code}, '${clubinstant.cinst_loc}')
+	</insert>
+	
+	<select id="thisClubInstantInfo" resultType="hashmap">
+		SELECT m.MEM_NAME , c.CINST_NAME ,c.CINST_CODE, c.CINST_DATE, c.CINST_CONTENT, c.CINST_MEMTOT, c.CINST_LOC, c.CINST_COST,(SELECT count(*) FROM CLUBINSTANTINFO WHERE cinst_code = #{cinst_code}) AS cinst_left from CLUBINSTANT c, MEMBER m WHERE m.MEM_CODE=c.MEM_CODE AND c.CINST_CODE = #{cinst_code}
+	</select>
+	
+	<insert id="insertClubInstantInfo" parameterType="hashmap">
+		INSERT INTO CLUBINSTANTINFO (CIINFO_CODE, CINST_CODE, MEM_CODE) VALUES(seq_clubinstantinfo.nextval, ${clubinstant.cinst_code}, ${member.mem_code})
+	</insert>
+	
+	<select id="checkAlreadyApply" parameterType="hashmap" resultType="Integer">
+	SELECT count(*) FROM CLUBINSTANTINFO WHERE CINST_CODE = ${clubinstant.cinst_code} AND MEM_CODE= ${member.mem_code}
+	</select>
+	
+	<select id="getApplyMember" resultType="hashmap">
+		SELECT m.MEM_NAME, m.MEM_REALFNAME  FROM MEMBER m, CLUBINSTANTINFO c WHERE m.MEM_CODE = c.MEM_CODE AND c.CINST_CODE = #{cinst_code}
+	</select>
+
+	<select id="getNextClubInstantCode" resultType="Integer">
+		SELECT SEQ_CLUBINSTANT.NEXTVAL FROM DUAL
+	</select>
+</mapper>

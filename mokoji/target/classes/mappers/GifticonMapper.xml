@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="GifticonDAO">
+
+	<select id="AllgifticonList" parameterType="gifticon" resultType="gifticon">
+	 <![CDATA[ 
+			SELECT gcon_code, gcon_name, gcon_price, gcon_rpic FROM GIFTICON WHERE rownum < 10 ORDER BY 1
+		]]>
+	</select>
+	
+	<select id="selectGifticon" parameterType="String" resultType="gifticon">
+	SELECT g.gcon_code, g.gcon_name, g.GCON_PRICE, g.gcon_rpic FROM GIFTICON g, SHOPMIDDLE s WHERE g.SHOPMIDDLE_CODE = s.SHOPMIDDLE_CODE AND s.SHOPHIGH_CODE = (SELECT SHOPHIGH_CODE FROM SHOPHIGH s WHERE SHOPHIGH_NAME = #{shophigh_name})
+	</select>
+	
+	<select id="allGiftList" resultType="gifticon">
+	 <![CDATA[ 
+	SELECT gcon_code, gcon_name, gcon_price, gcon_rpic FROM GIFTICON WHERE rownum < 30 ORDER BY 1
+	]]>
+	</select>
+	
+	<select id="getMiddleList" parameterType="String" resultType="giftcategory">
+	SELECT s.SHOPMIDDLE_CODE, s.SHOPMIDDLE_NAME FROM SHOPMIDDLE s, SHOPHIGH s2 WHERE s.SHOPHIGH_CODE = s2.SHOPHIGH_CODE AND s2.SHOPHIGH_NAME = #{shophigh_name}
+	</select>
+	
+	<select id="searchGift" parameterType="hashmap" resultType="hashmap">
+	<![CDATA[
+	SELECT gcon_code, gcon_name, gcon_price, gcon_rpic FROM GIFTICON g WHERE SHOPMIDDLE_CODE = ${cate.Shopmiddle_code} AND GCON_PRICE < ${gift.GCON_PRICE}
+	]]> 
+	</select>
+	
+	<select id="goGiftshopDetails" parameterType="gifticon" resultType="gifticon">
+	SELECT gcon_code, gcon_name, gcon_price, gcon_rpic FROM GIFTICON WHERE gcon_code = #{gcon_code}
+	</select>
+	
+	<insert id="insertBuyGift" parameterType="hashmap">
+	INSERT INTO BUYGIFT(BGIFT_CODE, MEM_CODE, GCON_CODE , GCON_COUNT) VALUES (seq_buygift.nextval, ${member.mem_code}, ${gifticon.gcon_code}, ${gifticon.gcon_count})
+	</insert>
+	
+	<update id="updateMemGift" parameterType="hashmap">
+	UPDATE member SET MEM_POINT = ${member.mem_point} where mem_code = ${member.mem_code}
+	</update>
+	
+	<select id="getMemPoint" parameterType="int" resultType="int">
+	SELECT MEM_POINT FROM MEMBER WHERE MEM_CODE = #{code}
+	</select>
+	
+	
+	
+	
+
+</mapper>

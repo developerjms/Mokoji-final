@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClubPaneDAO">
+
+	<insert id="insertClubPane" parameterType="hashmap">
+		INSERT INTO CLUBPANE (cp_code, cp_name, cp_content, cp_date, cp_pic, cp_rpic, cp_cnt, cp_likes, mc_code) 
+		VALUES(seq_clubpane.nextval, #{clubpane.cp_name}, #{clubpane.cp_content}, sysdate, #{clubpane.cp_pic}, #{clubpane.cp_rpic},0, 0, #{ memclub.mc_code })
+	</insert>
+
+	<select id="selectClubPaneList" parameterType="hashmap" resultType="hashmap">
+	SELECT p.CP_CODE, p.CP_NAME, p.CP_CONTENT, p.CP_DATE, p.CP_PIC, p.CP_CNT, p.CP_LIKES, p.MC_CODE, m.MEM_NAME, p.CP_RPIC, NVL(aaa.cnt,0) AS cnt FROM CLUBPANE p
+	LEFT JOIN MEMCLUB c ON c.mc_CODE=p.MC_CODE  
+	LEFT JOIN MEMBER m ON m.MEM_CODE  = c.MEM_CODE 
+	LEFT JOIN (SELECT cp_code, count(*) AS cnt FROM clubpanelikes cl WHERE mem_code = ${member.mem_code} GROUP BY cp_code) aaa
+	ON p.CP_CODE = aaa.cp_code
+	WHERE CLUB_CODE = ${club.club_code} ORDER BY cp_code desc
+	</select>
+	
+	<update id="updateHeart">
+	UPDATE CLUBPANE SET CP_LIKES = CP_LIKES + 1 WHERE CP_CODE = #{cp_code}
+	</update>
+
+	<select id="getOneClubPane" resultType="clubpane" parameterType="integer">
+	SELECT CP_CODE, CP_NAME, CP_CONTENT, CP_DATE, CP_PIC, CP_CNT, CP_LIKES, MC_CODE FROM CLUBPANE WHERE CP_CODE = #{cp_code}
+	</select>
+	
+	<update id="downHeart">
+	UPDATE CLUBPANE SET CP_LIKES = CP_LIKES - 1 WHERE CP_CODE = #{cp_code}
+	</update>
+	
+	<insert id="insertHeartLikes" parameterType="hashmap">
+	INSERT INTO CLUBPANELIKES (CPLIKE_CODE, CP_CODE, MEM_CODE) VALUES (seq_clubpanelikes.nextval, ${clubpane.cp_code}, ${member.mem_code})
+	</insert>
+	
+	<delete id="deleteHeartLikes" parameterType="hashmap">
+	DELETE FROM CLUBPANELIKES WHERE CP_CODE = ${clubpane.cp_code} AND MEM_CODE = ${member.mem_code}
+	</delete>
+	
+	<select id="getMyLikes" parameterType="member" resultType="clubpane">
+	SELECT CP_CODE FROM CLUBPANELIKES WHERE MEM_CODE = #{mem_code} ORDER BY cp_code desc
+	</select>
+	
+	<select id="selectMyClubPaneList" parameterType="hashmap" resultType="hashmap">
+	SELECT c.CP_NAME, c.CP_DATE, c.CP_LIKES, c.CP_PIC, c.CP_CONTENT, m.MEM_FAVORITE , m.MEM_FNAME, m.MEM_CODE FROM MEMBER m ,MEMCLUB mc, CLUBPANE c  WHERE C.MC_CODE = mc.MC_CODE AND m.MEM_CODE = mc.MEM_CODE AND M.MEM_CODE = ${member.mem_code}
+	</select>
+
+	<select id="selectInfo" parameterType="member" resultType="member">
+	SELECT  MEM_FAVORITE , MEM_FNAME  FROM MEMBER    WHERE MEM_CODE = #{ mem_code }
+	</select>
+
+
+	<select id="selectMyClub" parameterType="hashmap" resultType="hashmap">
+	SELECT DISTINCT b.club_code, b.club_name, b.club_intro, a.ctmid_code, b.club_pic 
+	FROM CLUBINSTANT c, CATEGORYMIDDLE a, CLUB b, MEMBER m  
+	WHERE a.ctmid_code = b.ctmid_code AND b.CLUB_CODE = c.CLUB_CODE  AND m.MEM_CODE =c.MEM_CODE  AND m.mem_code = ${member.mem_code} ORDER BY a.CTMID_CODE DESC  
+	</select>
+
+	<select id="selectMySocialing" parameterType="hashmap" resultType="hashmap">
+	SELECT DISTINCT s.social_code, s.social_name, s.social_content, s.social_tot, c.CTMID_CODE, m.mem_code FROM MEMCLUB m , SOCIALING s, CATEGORYMIDDLE c
+	WHERE s.CTMID_CODE = c.CTMID_CODE AND m.MEM_CODE = ${member.mem_code}
+	ORDER BY s.SOCIAL_TOT  desc
+	</select>
+
+	<select id="selectMyChallenge" parameterType="hashmap" resultType="hashmap">
+	SELECT DISTINCT c.chall_code, c.chall_name, c.chall_content, c.chall_tot, c.chall_RPIC , ct.CTMID_CODE, m.mem_code FROM MEMCHALLENGE m2 ,MEMCLUB m , CHALLENGE c , CATEGORYMIDDLE ct
+	WHERE ct.CTMID_CODE = c.CTMID_CODE AND m.MEM_CODE = ${member.mem_code}
+	ORDER BY c.chall_TOT  desc
+	</select>
+
+	
+	
+</mapper>
+

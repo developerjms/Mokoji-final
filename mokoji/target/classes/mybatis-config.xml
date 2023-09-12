@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>	
+	<!-- DB 연동부분은 스프링 설정파일로 이동 -->
+
+
+
+	<!-- Alias 설정 -->
+	<typeAliases>
+		<typeAlias alias="index" type="com.mokoji.domain.IndexVO"/>
+		<typeAlias alias="member" type="com.mokoji.domain.MemberVO"/>
+		<typeAlias alias="category" type="com.mokoji.domain.CategoryVO"/>
+		<typeAlias alias="socialing" type="com.mokoji.domain.SocialingVO"/>
+		<typeAlias alias="club" type="com.mokoji.domain.ClubVO"/>
+		<typeAlias alias="clubpane" type="com.mokoji.domain.ClubPaneVO"/>
+		<typeAlias alias="memclub" type="com.mokoji.domain.MemClubVO"/>
+		<typeAlias alias="instant" type="com.mokoji.domain.ClubInstantVO"/>
+		<typeAlias alias="challenge" type="com.mokoji.domain.ChallengeVO"/>
+		<typeAlias alias="clubpanereple" type="com.mokoji.domain.ClubPaneRepleVO"/>
+		<typeAlias alias="Socialinginfo" type="com.mokoji.domain.SocialingInfoVO"/>
+		<typeAlias alias="matching" type="com.mokoji.domain.MatchingVO"/>
+		<typeAlias alias="matchinginfo" type="com.mokoji.domain.MatchingInfoVO"/>
+		<typeAlias alias="meminterclub" type="com.mokoji.domain.MemInterClubVO"/>
+		<typeAlias alias="memchallenge" type="com.mokoji.domain.MemChallengeVO"/>
+		<typeAlias alias="gifticon" type="com.mokoji.domain.GifticonVO"/>
+		<typeAlias alias="giftcategory" type="com.mokoji.domain.GiftCategoryVO"/>
+		
+	</typeAliases>
+	
+	<!-- Sql Mapper 설정 -->
+<!-- 	<mappers>
+		<mapper resource="mappings/board-mapping.xml"/>
+	</mappers> -->
+</configuration> 

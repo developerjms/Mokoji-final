@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ChallengeDAO">
+		
+		
+		<select id="getChallengeList" parameterType="challenge" resultType="challenge">
+	SELECT a.chall_code, a.chall_name, a.chall_loc, a.chall_content, a.chall_tot, a.chall_pic, a.chall_rpic, a.ctmid_code FROM CHALLENGE a ,CATEGORYMIDDLE b 
+	WHERE a.ctmid_code = b.ctmid_code
+	order by a.chall_code desc
+	</select>
+	
+	
+	<select id="getSelectedChallengeList" resultType="challenge">
+	SELECT a.chall_code, a.chall_name, a.chall_loc, a.chall_content, a.chall_tot,a.chall_rpic, a.chall_pic FROM CHALLENGE a ,CATEGORYMIDDLE b 
+	WHERE a.ctmid_code = b.ctmid_code and b.ctmid_name = #{ctmid_name} order by a.chall_code desc
+	</select>
+	
+	<select id="getSelectedHighChallengeList" resultType="challenge">
+	select c.chall_code, c.chall_name,  c.chall_loc, c.chall_content, c.chall_tot, c.chall_rpic, c.chall_pic, m.ctmid_code from categoryhigh h, categorymiddle m, challenge c
+	where h.cthigh_code = m.cthigh_code and c.ctmid_code = m.ctmid_code and
+	m.cthigh_code=(select b.cthigh_code from categoryhigh b where b.cthigh_name=#{cthigh_name})
+	order by c.chall_code desc
+	</select>
+	
+		<select id="getchallcode" resultType="integer">
+		select seq_challenge.nextval from dual
+		</select>
+
+		
+		<insert id="insertChallenge" parameterType="hashmap">
+			INSERT INTO challenge
+			(chall_code, chall_name, chall_loc, chall_age, chall_gender, chall_content, chall_tot,chall_startdate, chall_enddate, ctmid_code
+			<if test='challenge.chall_pic != null'>
+			, chall_pic, chall_rpic
+			</if>
+			)VALUES(${challenge.chall_code}, '${ challenge.chall_name }', '${ challenge.chall_loc }', ${ challenge.chall_age }, '${ challenge.chall_gender }', '${challenge.chall_content}', ${challenge.chall_tot},'${ challenge.chall_startdate }', '${ challenge.chall_enddate }', ${ category.ctmid_code }
+			<if test='challenge.chall_pic !=null'>
+			, '${challenge.chall_pic}', '${challenge.chall_rpic}'
+			</if>
+			)
+		</insert>
+		
+		<insert id="insertMemChallenge" parameterType="hashmap">
+			INSERT INTO memchallenge
+			(mchall_code, chall_code, mem_code, mchall_fin, mchall_date, mchall_cnt, memct_code
+			)VALUES(seq_memchallenge.nextval, ${challenge.chall_code}, ${member.mem_code}, 'N', sysdate, 0, 1)
+		
+		</insert>
+		
+		<select id="getOneChallengelist" parameterType="challenge" resultType="challenge">
+       SELECT CHALL_CODE , CHALL_NAME , CHALL_STARTDATE ,CHALL_ENDDATE ,CHALL_RPIC, CHALL_REWARD, CHALL_CONTENT, CHALL_LOC, CHALL_AGE, CHALL_TOT, CHALL_GENDER,
+         (SELECT count(m.MEM_CODE) FROM MEMCHALLENGE m WHERE m.CHALL_CODE = c.CHALL_CODE) AS chall_left
+          FROM CHALLENGE c WHERE c.CHALL_CODE = #{chall_code}
+
+   </select>
+</mapper>

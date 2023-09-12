@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="meminterclubDAO">
+	
+	<insert id="insertHeartLikes" parameterType="hashmap">
+		INSERT INTO MEMINTERCLUB (mic_code, mem_code, club_code, mic_date)
+		VALUES (seq_meminterclub.nextval, ${member.mem_code}, ${club.club_code}, sysdate)
+	</insert>
+	
+	<delete id="deleteHeartLikes" parameterType="hashmap">
+		DELETE FROM MEMINTERCLUB WHERE mem_code = ${member.mem_code} and club_code = ${club.club_code}
+	</delete>
+
+</mapper>

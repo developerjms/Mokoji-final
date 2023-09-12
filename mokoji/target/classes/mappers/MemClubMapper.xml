@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemClubDAO">
+	
+	<select id="getMemCtCode" parameterType="hashmap" resultType="Integer">
+		SELECT memct_code FROM MEMCLUB where club_code = ${club.club_code} and mem_code = ${member.mem_code}
+	</select>
+
+	<select id="getMemJangCtCode" parameterType="hashmap" resultType="Integer">
+		SELECT c.ctmid_code FROM CLUB c, MEMCLUB m WHERE c.club_code = m.club_code AND m.mem_code=${member.mem_code} AND m.memct_code = 1
+	</select>
+
+	<insert id="joinClub" parameterType="hashmap">
+		<choose>
+			<when test='club.club_signtype == "승인제"'>
+				INSERT INTO MEMCLUB (MC_CODE, CLUB_CODE, MEM_CODE, MEMCT_CODE,
+				MC_JOINSTATE) VALUES (seq_memclub.nextval,
+				${club.club_code},${member.mem_code},2,'N')
+			</when>
+			
+			
+			<when test='club.club_signtype == "선착순"'>
+				INSERT INTO MEMCLUB (MC_CODE, CLUB_CODE, MEM_CODE, MEMCT_CODE,
+				MC_JOINSTATE) VALUES (seq_memclub.nextval,
+				${club.club_code},${member.mem_code},2,'Y')
+			</when>
+		</choose>
+	</insert>
+	
+	
+	<select id="checkMcCode" parameterType="hashmap" resultType="Integer">
+	SELECT MC_CODE FROM MEMCLUB WHERE CLUB_CODE=${club.club_code} AND MEM_CODE=${member.mem_code}
+	</select>
+	
+	<select id="getAllMemClub" parameterType="club" resultType="hashmap">
+		SELECT c.MC_CODE, m.MEM_NAME,m.MEM_ID, m.MEM_JUMIN FROM MEMCLUB c, MEMBER m where c.CLUB_CODE = ${club_code} AND c.MEM_CODE = m.MEM_CODE AND c.MC_JOINSTATE = 'N'
+	</select>
+	
+	<update id="upMemclub" parameterType="memclub">
+	UPDATE MEMCLUB SET MC_JOINSTATE= 'Y' WHERE MC_CODE= #{mc_code}
+	</update>
+
+	<delete id="delMemClub" parameterType="memclub">
+	DELETE FROM MEMCLUB WHERE MC_CODE=#{mc_code}
+	</delete>
+	
+	<select id="checkClubJang" parameterType="integer" resultType="integer">
+	SELECT MEMCT_CODE FROM MEMCLUB WHERE MEM_CODE = #{mem_code} AND MEMCT_CODE=1
+	</select>
+	
+	<select id="getMemCtMidCode" parameterType="hashmap" resultType="integer">
+      SELECT c.ctmid_code FROM CLUB c, MEMCLUB m WHERE c.club_code = m.club_code AND m.mem_code=${member.mem_code} AND m.memct_code = 1
+   </select>
+   
+</mapper>

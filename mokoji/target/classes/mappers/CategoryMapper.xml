@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CategoryDAO">
+
+	<select id="getCateHighList" parameterType="category" resultType="category">
+		SELECT * FROM CATEGORYHIGH
+	</select>
+
+	<select id="getCateMidList" resultType="category">
+      SELECT b.ctmid_name, b.ctmid_code FROM CATEGORYHIGH a, CATEGORYMIDDLE b where
+      a.cthigh_name = #{cthigh_name} AND a.cthigh_code = b.cthigh_code
+   </select>
+
+	<select id="getCateList" resultType="category">
+	SELECT h.cthigh_name, m.ctmid_name, m.ctmid_pic FROM CATEGORYHIGH h, CATEGORYMIDDLE m where h.cthigh_code = m.cthigh_code
+	</select>
+
+	<select id="getCateList2" resultType="category">
+	SELECT cthigh_name from CATEGORYHIGH
+	</select>
+
+</mapper>

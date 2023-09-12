@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberDAO">
+	<select id="checkMember" parameterType="member" resultType="member">
+		SELECT mem_code, mem_id, mem_pw ,mem_name,mem_jumin, mem_point FROM member WHERE mem_id = #{mem_id}
+		<if test="mem_pw != null">
+			AND mem_pw = #{mem_pw}
+		</if>
+	</select>
+	
+	<insert id="insertMember" parameterType="member">
+		INSERT INTO member
+		(mem_code, mem_id, mem_pw, mem_name, mem_jumin, mem_tel, mem_favorite, mem_point, mem_loc, mem_addr, mem_addrdetail
+		<if test='mem_fname != null'>
+		, mem_fname, mem_realfname
+		</if>
+		)VALUES (
+		seq_member.nextval, #{mem_id}, #{mem_pw}, #{mem_name}, #{mem_jumin}, #{mem_tel}, #{mem_favorite}, 0, #{mem_loc}, #{mem_addr}, #{mem_addrdetail}
+		<if test='mem_fname != null'>
+		, #{mem_fname}, #{mem_realfname}
+		</if>
+		)
+	</insert>
+	
+	<select id="nameCheck" resultType="integer">
+		select count(*) from member where mem_id =#{mem_id}
+	</select>
+	
+	
+
+</mapper>

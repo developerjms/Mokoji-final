@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SocialingDAO">
+
+	<select id="selectSocialcode" resultType="integer">
+		select
+		seq_socialing.nextval from dual
+	</select>
+
+	<insert id="insertSocialing" parameterType="hashmap">
+		INSERT INTO SOCIALING
+		(social_code, social_name, social_date,
+		social_content, social_tot, social_cost,
+		social_loc, social_maxage,
+		social_gender, ctmid_code, social_signtype
+		<if test='socialing.social_pic != null'>
+			, social_pic, social_rpic
+		</if>
+		)VALUES(
+		#{socialing.social_code}, #{ socialing.social_name },
+		#{socialing.social_date},
+		#{socialing.social_content},
+		#{socialing.social_tot},
+		#{socialing.social_cost},
+		#{socialing.social_loc},
+		#{socialing.social_maxage},
+		#{socialing.social_gender},
+		#{category.ctmid_code},
+		#{socialing.social_signtype}
+		<if test='socialing.social_pic != null'>
+			, #{socialing.social_pic}, #{socialing.social_rpic}
+		</if>
+		)
+	</insert>
+
+	<insert id="insertSocialinfo" parameterType="hashmap">
+		INSERT INTO
+		SOCIALINGINFO
+		(socialinfo_code, socialinfo_date, mem_code, social_code,
+		socialinfo_chpay, memct_code, ms_joinstate)
+		values(seq_socialinginfo.nextval,
+		sysdate, #{member.mem_code},
+		#{socialing.social_code}, 'Y', 1, 'Y')
+	</insert>
+
+
+	<select id="getHighSocialListInterest" resultType="socialing">
+		SELECT
+		s.social_code, s.social_name, s.social_date, s.social_content,
+		s.social_tot, s.social_cost, s.social_loc,
+		s.social_pic, s.social_rpic,
+		s.social_maxage, s.social_gender
+		FROM socialing s, categorymiddle m,
+		categoryhigh h WHERE h.cthigh_code =
+		m.cthigh_code and m.ctmid_code =
+		s.ctmid_code and
+		m.cthigh_code=(select b.cthigh_code from categoryhigh
+		b where
+		b.cthigh_name = #{cthigh_name})
+		order by s.social_code desc
+	</select>
+
+	<select id="getSocialListInterest" resultType="socialing">
+		SELECT
+		s.social_code, s.social_name, s.social_date, s.social_content,
+		s.social_tot, s.social_cost, s.social_loc,
+		s.social_pic, s.social_rpic,
+		s.social_maxage, s.social_gender
+		FROM socialing s, categorymiddle m
+		WHERE s.ctmid_code = m.ctmid_code AND
+		m.ctmid_name = #{ctmid_name}
+		order by s.social_code desc
+	</select>
+
+
+	<select id="getSocialList" resultType="socialing">
+		SELECT social_code,
+		social_name, social_date, social_content,
+		social_tot, social_cost,
+		social_loc,
+		social_pic, social_rpic, social_maxage, social_signtype
+		social_gender
+		FROM socialing
+	</select>
+
+
+
+	<select id="getOneSocialList" parameterType="socialing" resultType="socialing">
+		SELECT social_code, social_name, social_date,
+		social_content, social_tot, social_cost, social_loc, social_pic,
+		social_rpic, social_maxage, social_gender, social_signtype, (SELECT
+		count(s.ms_joinstate) FROM
+		SOCIALINGINFO s WHERE s.SOCIAL_CODE =
+		s2.SOCIAL_CODE AND s.ms_joinstate ='Y') AS
+		SOCIAL_LEFT FROM
+		SOCIALING s2
+		WHERE s2.SOCIAL_CODE = #{social_code}
+	</select>
+
+
+
+	<select id="checkMemSocial" parameterType="hashmap"
+		resultType="Integer">
+		SELECT SOCIALINFO_CODE FROM SOCIALINGINFO WHERE social_code
+		= ${social.social_code}
+		and mem_code = ${ member.mem_code }
+	</select>
+
+	<select id="getmemctcode" parameterType="hashmap"
+		resultType="Integer">
+		SELECT memct_code FROM SOCIALINGINFO where social_code =
+		${social.social_code} and mem_code = ${member.mem_code}
+	</select>
+
+	<select id="getAllMemSocial" parameterType="socialing"
+		resultType="hashmap">
+		SELECT s.SOCIALINFO_CODE, m.MEM_ID, m.MEM_JUMIN FROM
+		SOCIALINGINFO s,
+		MEMBER m where s.SOCIAL_CODE = ${social_code} AND
+		s.MEM_CODE = m.MEM_CODE
+		AND s.MS_JOINSTATE = 'N'
+	</select>
+
+	<insert id="joinsocial" parameterType="hashmap">
+		<choose>
+			<when test='social.social_signtype == "승인제"'>
+				INSERT INTO SOCIALINGINFO (socialinfo_code,
+				socialinfo_date, mem_code,
+				social_code, socialinfo_chpay, memct_code,
+				ms_joinstate
+				)VALUES (seq_socialinginfo.nextval, sysdate,
+				${member.mem_code},
+				${social.social_code},
+				'${socialinfo.socialinfo_chpay}', 2, 'N')
+			</when>
+
+			<when test='social.social_signtype == "선착순"'>
+				INSERT INTO SOCIALINGINFO (socialinfo_code,
+				socialinfo_date, mem_code,
+				social_code, socialinfo_chpay, memct_code,
+				ms_joinstate
+				)VALUES (seq_socialinginfo.nextval, sysdate,
+				${member.mem_code},
+				${social.social_code},
+				'${socialinfo.socialinfo_chpay}', 2, 'Y')
+
+			</when>
+		</choose>
+
+	</insert>
+
+	<select id="getsocialpay" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT m.MEM_NAME, s.SOCIALINFO_CODE FROM SOCIALINGINFO s,
+		MEMBER m WHERE
+		m.MEM_CODE = s.MEM_CODE AND s.SOCIALINFO_CHPAY = 'N' AND
+		s.SOCIAL_CODE
+		= ${social.social_code}
+	</select>
+
+	<update id="upsocialpay" parameterType="Socialinginfo">
+		UPDATE SOCIALINGINFO SET
+		SOCIALINFO_CHPAY = 'Y' WHERE SOCIALINFO_CODE =
+		#{socialinfo_code}
+	</update>
+
+	<update id="upsocialing" parameterType="Socialinginfo">
+		UPDATE SOCIALINGINFO SET
+		MS_JOINSTATE= 'Y' WHERE SOCIALINFO_CODE=
+		#{socialinfo_code}
+	</update>
+
+	<delete id="delsocialing" parameterType="Socialinginfo">
+		DELETE FROM
+		SOCIALINGINFO WHERE SOCIALINFO_CODE = #{socialinfo_code}
+	</delete>
+
+	<select id="searchSocialByLoc" parameterType="socialing" resultType="hashmap">
+		SELECT social_code, social_name, social_date, 
+		social_content, social_tot, social_cost, social_loc, social_pic, ctmid_code, 
+		social_rpic, social_maxage, social_gender, social_signtype,
+       (SELECT count(s.ms_joinstate) FROM SOCIALINGINFO s WHERE s.SOCIAL_CODE = s2.SOCIAL_CODE AND s.ms_joinstate ='Y') AS SOCIAL_LEFT 
+       FROM SOCIALING s2 
+       WHERE social_loc = #{social_loc}
+	</select>
+
+	<select id="searchSocialByCate" parameterType="category" resultType="hashmap">
+		SELECT social_code, social_name, social_date,
+		social_content, social_tot, social_cost, social_loc, social_pic, ctmid_code,
+		social_rpic, social_maxage, social_gender, social_signtype,
+		(SELECT count(s.ms_joinstate) FROM SOCIALINGINFO s WHERE s.SOCIAL_CODE =
+		s2.SOCIAL_CODE AND s.ms_joinstate ='Y') AS SOCIAL_LEFT
+		FROM SOCIALING s2
+		WHERE ctmid_code = #{ctmid_code}
+	</select>
+
+
+</mapper>

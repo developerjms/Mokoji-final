@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemChallengeDAO">
+
+<select id="checkMtCode" parameterType="hashmap" resultType="Integer">
+		SELECT memct_code FROM MEMCHALLENGE WHERE CHALL_CODE = ${challenge.chall_code} AND MEM_CODE = ${member.mem_code}
+</select>
+
+
+<insert id="joinChallenge" parameterType="hashmap">
+INSERT INTO MEMCHALLENGE (MCHALL_CODE, CHALL_CODE, MEM_CODE, MCHALL_FIN,MCHALL_DATE,MCHALL_CNT,MEMCT_CODE) 
+VALUES(seq_memchallenge.nextval, ${challenge.chall_code}, ${member.mem_code},'N', sysdate, 0, 2)
+</insert>
+
+
+</mapper>
